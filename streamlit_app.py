@@ -48,7 +48,7 @@ if ingredients_list:
           response = requests.get(f"https://my.smoothiefroot.com/api/fruit/{search_on}")
           response.raise_for_status()
           st.dataframe(data=response.json(), use_container_width = True)
-        except:
+        except Exception as e:
           st.error(f"Failed to fetch data for {fruit_chosen} (search key: {search_on}): {e}")
 
     #st.write(ingredients_string)
