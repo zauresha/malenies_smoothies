@@ -34,18 +34,22 @@ ingredients_list = st.multiselect(
 )
 
 if ingredients_list:
-
     ingredients_string = ''
 
     for fruit_chosen in ingredients_list:
         ingredients_string += fruit_chosen + ' '
+
+        # Try to get the 'SEARCH_ON' value, fallback to fruit name if missing
+        filtered = pd_df.loc[pd_df['FRUIT_NAME'] == fruit_chosen, 'SEARCH_ON']
+        search_on = filtered.iloc[0] if not filtered.empty and pd.notna(filtered.iloc[0]) else fruit_chosen
       
-        search_on=pd_df.loc[pd_df['FRUIT_NAME'] == fruit_chosen, 'SEARCH_ON'].iloc[0]
-        # st.write('The search value for ', fruit_chosen,' is ', search_on, '.')
-      
-        st.subheader(fruit_chosen + 'Nutrition Information')
-        smoothiefroot_response = requests.get("https://my.smoothiefroot.com/api/fruit/" + search_on)
-        sf_df = st.dataframe(data=smoothiefroot_response.json(), use_container_width = True)
+        st.subheader(f"{fruit_chosen} Nutrition Information")
+        try:
+          response = requests.get(f"https://my.smoothiefroot.com/api/fruit/{search_on}")
+          response.raise_for_status()
+          st.dataframe(data=response.json(), use_container_width = True)
+        except:
+          st.error(f"Failed to fetch data for {fruit_chosen} (search key: {search_on}): {e}")
 
     #st.write(ingredients_string)
 
